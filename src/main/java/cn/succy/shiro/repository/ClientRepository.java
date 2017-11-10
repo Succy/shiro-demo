@@ -24,4 +24,12 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
      * @param clientSecret 客户端密钥
      */
     Client findByClientSecret(String clientSecret);
+
+    /**
+     * 根据客户端id和客户端秘钥查询
+     * @param clientId 客户端id
+     * @param clientSecret 客户端秘钥
+     * @return
+     */
+    Client findByClientIdAndClientSecret(String clientId, String clientSecret);
 }

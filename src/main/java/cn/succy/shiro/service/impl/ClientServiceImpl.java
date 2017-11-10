@@ -56,4 +56,9 @@ public class ClientServiceImpl implements ClientService {
     public Client findByClientSecret(String clientSecret) {
         return clientRepository.findByClientSecret(clientSecret);
     }
+
+    @Override
+    public Client findByClientIdAndClientSecret(String clientId, String clientSecret) {
+        return clientRepository.findByClientIdAndClientSecret(clientId, clientSecret);
+    }
 }

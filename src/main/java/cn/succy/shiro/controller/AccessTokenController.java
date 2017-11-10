@@ -3,6 +3,7 @@ package cn.succy.shiro.controller;
 import cn.succy.shiro.service.OAuthService;
 import cn.succy.shiro.service.UserService;
 import cn.succy.shiro.util.Constants;
+import com.xiaoleilu.hutool.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
@@ -43,7 +44,7 @@ public class AccessTokenController {
             // 构造OAuth请求
             OAuthTokenRequest oAuthTokenRequest = new OAuthTokenRequest(request);
             // 校验客户端的client_id和client_secret是否正确
-            if (!oAuthService.checkClientId(oAuthTokenRequest.getClientId()) || !oAuthService.checkClientSecret(oAuthTokenRequest.getClientSecret())) {
+            if (!oAuthService.checkClientIdAndClientSecretValid(oAuthTokenRequest.getClientId(), oAuthTokenRequest.getClientSecret())) {
                 OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT)
                         .setErrorDescription(Constants.INVALID_CLIENT_DESCRIPTION)
@@ -78,11 +79,17 @@ public class AccessTokenController {
                 return ResponseEntity.status(HttpStatus.valueOf(response.getResponseStatus()))
                         .body(response.getBody());
             }
+            // 如果没有超过过期时间，从缓存中获取accessToken
+            String accessToken = oAuthService.getAccessTokenFromCache(username, password);
+            if (StrUtil.isBlank(accessToken) || "null".equals(accessToken)) {
+                // 生成accessToken
+                OAuthIssuer oAuthIssuer = new OAuthIssuerImpl(new MD5Generator());
+                accessToken = oAuthIssuer.accessToken();
+                // 加入到缓存中
+                oAuthService.addAccessToken(username, password, accessToken);
+            }
 
-            // 生成accessToken
-            OAuthIssuer oAuthIssuer = new OAuthIssuerImpl(new MD5Generator());
-            final String accessToken = oAuthIssuer.accessToken();
-            oAuthService.addAccessToken(accessToken, username);
+            log.info("accessToken => {}", accessToken);
 
             //生成OAuth token响应
             OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK)

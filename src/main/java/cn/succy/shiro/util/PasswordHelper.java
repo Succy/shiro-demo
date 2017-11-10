@@ -12,11 +12,9 @@ import org.springframework.stereotype.Component;
  * @date 2017-11-08 16:37
  **/
 @Component
-public class PasswordHelper  {
+public class PasswordHelper {
     private RandomNumberGenerator randomNumberGenerator = new SecureRandomNumberGenerator();
 
-    private static final String ALGORITHM_NAME = "md5";
-    private static final int HASH_ITERATIONS = 2;
 
     public void setRandomNumberGenerator(RandomNumberGenerator randomNumberGenerator) {
         this.randomNumberGenerator = randomNumberGenerator;
@@ -26,11 +24,12 @@ public class PasswordHelper  {
     public void encryptPassword(User user) {
         user.setSalt(randomNumberGenerator.nextBytes().toHex());
         String newPassword = new SimpleHash(
-                ALGORITHM_NAME,
+                Constants.HASHALGORITHM_NAME,
                 user.getPassword(),
                 ByteSource.Util.bytes(user.getCredentialsSalt()),
-                HASH_ITERATIONS).toHex();
+                Constants.HASH_ITERATIONS).toHex();
 
         user.setPassword(newPassword);
     }
+
 }

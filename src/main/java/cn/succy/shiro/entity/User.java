@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
 
 /**
@@ -36,6 +37,7 @@ public class User implements Serializable {
      */
     private String salt;
 
+    @Transient
     public String getCredentialsSalt() {
         return username + salt;
     }

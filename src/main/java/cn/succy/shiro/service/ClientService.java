@@ -63,4 +63,11 @@ public interface ClientService {
      * @return 查询到的客户端对象
      */
     Client findByClientSecret(String clientSecret);
+
+    /**
+     * 根据客户端id和客户端秘钥查询
+     * @param clientId 客户端id
+     * @param clientSecret 客户端秘钥
+     */
+    Client findByClientIdAndClientSecret(String clientId, String clientSecret);
 }
